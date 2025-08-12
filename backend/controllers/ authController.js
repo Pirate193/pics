@@ -82,9 +82,11 @@ exports.verifyEmail = async (req,res,next)=>{
         user.emailVerificationToken = undefined;
         user.emailVerificationExpires = undefined;
         await user.save();
-        //send token to automaticllay log in the user
-        sendTokenResponse(user,200,res);
-    }catch(err){
+
+        // Construct custom URL scheme
+        const redirectUrl = `${process.env.MOBILE_APP_URL}/verify?success=true&token=${getJwtToken(user._id)}`;
+        return res.redirect(redirectUrl);
+    } catch(err){
         next(err);
     }
 };
@@ -207,18 +209,7 @@ exports.googleAuth = async (req, res, next) => {
 
 // Helper function to send token response
 const sendTokenResponse = (user, statusCode, res) => {
-    //create a token 
-    const token = getJwtToken(user._id);
-    //cookie options
-    const options = {
-        expires: new Date(Date.now()+ 30 * 24 * 60 * 60 * 1000), // 30 days expiry
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-    };
-    res
-       .status(statusCode)
-       .cookie('token', token, options) // Set the token in a cookie
-       .json({
-         success: true,
-       })
-}
+    res.status(statusCode).json({
+        success: true,
+    });
+};

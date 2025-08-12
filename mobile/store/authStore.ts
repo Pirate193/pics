@@ -2,7 +2,6 @@ import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 import * as SecureStore from 'expo-secure-store';
 import api from '@/services/api';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 //lets now define the types for our auth state
 interface AuthState {
@@ -72,7 +71,6 @@ const useAuthStore = create<AuthState>()(
                         password
                     })
                     //store the token in SecureStore
-                    await secureStorage.setItem('auth_token',response.data.token);
                     set({
                         token: response.data.token,
                         user: response.data.user,
@@ -98,7 +96,6 @@ const useAuthStore = create<AuthState>()(
                         password
                     });
                     //store the token in SecureStore
-                    await secureStorage.setItem('auth_token', response.data.token);
                     set({
                         token: response.data.token,
                         user: response.data.user,
@@ -116,7 +113,6 @@ const useAuthStore = create<AuthState>()(
             },
             // logout user now
             logout: async ()=>{
-                await secureStorage.removeItem('auth_token');
                 set({
                     token: null,
                     user: null,
@@ -166,7 +162,6 @@ const useAuthStore = create<AuthState>()(
                         newPassword
                     });
                     //store the new token in SecureStore
-                    await secureStorage.setItem('auth_token', response.data.token);
                     set({
                         token: response.data.token,
                         user: response.data.user,
@@ -187,25 +182,31 @@ const useAuthStore = create<AuthState>()(
             initializeAuth: async () =>{
                 set({isLoading:true});
                 try{
-                    const token = await secureStorage.getItem('auth_token');
-                    if (token){
-                        //set token in api headers
-                        api.defaults.headers.common['Authorization']=`Bearer ${token}`;
-                        //fetch user data
-                        const userResponse = await api.get('/auth/me');
-                        set({
-                            token,
-                            user: userResponse.data,
-                            isAuthenticated: true,
-                            isLoading: false,
-                        });
-                    }else {
-                        set({
-                            isLoading:false,
-                        })
+                    const rawState = await secureStorage.getItem('auth-storage');
+                    if (rawState) {
+                        const { state } = JSON.parse(rawState);
+                        const token = state.token;
+                        if (token){
+                            //set token in api headers
+                            api.defaults.headers.common['Authorization']=`Bearer ${token}`;
+                            //fetch user data
+                            const userResponse = await api.get('/auth/me');
+                            set({
+                                token,
+                                user: userResponse.data,
+                                isAuthenticated: true,
+                                isLoading: false,
+                            });
+                        }else {
+                            set({
+                                isLoading:false,
+                            })
+                        }
+                    } else {
+                        set({ isLoading: false });
                     }
                 }catch (error){
-                    await secureStorage.removeItem('auth_token');
+                    await secureStorage.removeItem('auth-storage');
                     set({
                         token: null,
                         user: null,

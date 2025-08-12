@@ -36,6 +36,7 @@ const Login = () => {
          value={email}
          onChangeText={setEmail}
          keyboardType='email-address'
+         autoCapitalize='none'
          className='border border-secondary rounded-xl p-4 text-text '
         />
         
@@ -45,6 +46,7 @@ const Login = () => {
          value={password}
          onChangeText={setPassword}
          secureTextEntry
+         autoCapitalize='none'
          className='border border-secondary rounded-xl p-4 mt-5 text-text'
         />
         {/* forgot button  */}

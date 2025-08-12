@@ -1,9 +1,8 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const API_BASE_URL = __DEV__
-     ?'http://192.168.100.88:3000/api'
-     :'https://localhost8081:3000/api'; 
+const API_BASE_URL ='http://192.168.100.89:3000/api';
+     
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -17,12 +16,9 @@ const api = axios.create({
 api.interceptors.request.use(
     async (config) =>{
         try{
-            const stored = await SecureStore.getItemAsync('auth_token');
-            if (stored){
-                const {token} = JSON.parse(stored);
-                if (token){
-                    config.headers.Authorization =`Bearer ${token}`;
-                }
+            const token = await SecureStore.getItemAsync('auth_token');
+            if (token){
+                config.headers.Authorization =`Bearer ${token}`;
             }
         }catch (error) { 
             console.error('Error retrieving token from SecureStore:', error);

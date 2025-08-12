@@ -14,6 +14,10 @@ const Register = () => {
   const error=useAuthStore(state=>state.error);
 
   const handleRegister=async()=>{
+    if (password !== confirmpassword){
+      Alert.alert("passwords do not match");
+      return;
+    }
     try{
       await register(username,email,password);
       Alert.alert('verify your email','we have sent a verification link to your email address ',[{text:'OK',onPress:()=>router.replace('/(auth)/verifyemail')}])
@@ -55,6 +59,7 @@ const Register = () => {
              value={password}
              onChangeText={setPassword}
              secureTextEntry
+             autoCapitalize='none'
              className='border border-secondary rounded-xl p-4 mt-5 text-text'
             />
 
@@ -64,6 +69,7 @@ const Register = () => {
              value={confirmpassword}
              onChangeText={setConfirmPassword}
              secureTextEntry
+             autoCapitalize='none'
              className='border border-secondary rounded-xl p-4 mt-5 text-text'
             />
           

@@ -1,8 +1,14 @@
 import useAuthStore from "@/store/authStore";
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 export default function AuthLayout() {
   // Use the auth store to check if the user is authenticated
-  const { isAuthenticated } = useAuthStore();
+  const user = useAuthStore(state=>state.user);
+
+  if (user){
+    return(
+      <Redirect href='/(tabs)' />
+    )
+  }
 
   return (
     <Stack
