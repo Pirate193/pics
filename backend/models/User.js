@@ -41,7 +41,28 @@ const userSchema = new mongoose.Schema({
     createdAt:{
         type: Date,
         default: Date.now
-    }
+    },
+    profilePicture:{
+        type:String,
+        default:''
+    },
+    bio:{
+        type: String,
+        default:'',
+        maxlength:200
+    },
+    followers:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    }],
+    following:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    savedPins:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Pin'
+    }]
 });
 
 userSchema.pre('save', async function(next){
